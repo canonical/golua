@@ -86,7 +86,7 @@ func equalIntAndFloat(n int64, f float64) bool {
 	return float64(nf) == f && nf == n
 }
 
-func eq(t *Thread, x, y Value) (bool, *Error) {
+func eq(t *Thread, x, y Value) (bool, error) {
 	if res, ok := RawEqual(x, y); ok {
 		return res, nil
 	}
@@ -107,7 +107,7 @@ func eq(t *Thread, x, y Value) (bool, *Error) {
 
 // Lt returns whether x < y is true (and an error if it's not possible to
 // compare them).
-func Lt(t *Thread, x, y Value) (bool, *Error) {
+func Lt(t *Thread, x, y Value) (bool, error) {
 	lt, ok := isLessThan(x, y)
 	if ok {
 		return lt, nil
@@ -156,7 +156,7 @@ func leFloatAndInt(f float64, n int64) bool {
 	return f <= float64(n)
 }
 
-func le(t *Thread, x, y Value) (bool, *Error) {
+func le(t *Thread, x, y Value) (bool, error) {
 	switch x.NumberType() {
 	case IntType:
 		switch y.NumberType() {
@@ -185,6 +185,6 @@ func le(t *Thread, x, y Value) (bool, *Error) {
 	return false, compareError(x, y)
 }
 
-func compareError(x, y Value) *Error {
+func compareError(x, y Value) error {
 	return NewErrorF("attempt to compare a %s value with a %s value", x.CustomTypeName(), y.CustomTypeName())
 }

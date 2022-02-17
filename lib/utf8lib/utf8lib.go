@@ -33,7 +33,7 @@ func load(r *rt.Runtime) (rt.Value, func()) {
 	return rt.TableValue(pkg), nil
 }
 
-func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	runes := c.Etc()
 	maxLen := len(runes) * luastrings.UTFMax
 	t.RequireBytes(maxLen)
@@ -57,11 +57,11 @@ func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(string(buf[:bufLen]))), nil
 }
 
-func codes(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func codes(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		s   string
 		lax bool
-		err *rt.Error
+		err error
 	)
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func codes(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	}
 	decode := luastrings.GetDecodeRuneInString(lax)
 	var p int64
-	var iterF = func(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+	var iterF = func(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		t.RequireCPU(1)
 		next := c.Next()
 		r, n := decode(s[p:])
@@ -101,7 +101,7 @@ func codes(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.FunctionValue(iter)), nil
 }
 
-func codepoint(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func codepoint(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func codepoint(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func offset(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func offset(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}

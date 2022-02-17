@@ -10,7 +10,7 @@ import (
 var gcPercent int
 var gcRunning bool
 
-func collectgarbage(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func collectgarbage(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	opt := "collect"
 	if c.NArgs() > 0 {
 		optv, err := c.StringArg(0)

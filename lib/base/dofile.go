@@ -4,7 +4,7 @@ import (
 	rt "github.com/arnodel/golua/runtime"
 )
 
-func dofile(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func dofile(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	chunk, chunkName, err := loadChunk(t, c.Args())
 	defer t.ReleaseBytes(len(chunk))
 	if err != nil {

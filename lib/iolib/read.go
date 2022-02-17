@@ -7,7 +7,7 @@ import (
 	rt "github.com/arnodel/golua/runtime"
 )
 
-func ioread(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func ioread(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	next := c.Next()
 	readers, fmtErr := getFormatReaders(c.Etc())
 	if fmtErr != nil {
@@ -20,7 +20,7 @@ func ioread(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func fileread(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func fileread(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}

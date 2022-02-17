@@ -2,7 +2,7 @@ package base
 
 import rt "github.com/arnodel/golua/runtime"
 
-func warn(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func warn(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	args := c.Etc()
 	if len(args) == 0 {
 		return nil, rt.NewErrorS("bad argument #1 (value needed)")

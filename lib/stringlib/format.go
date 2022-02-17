@@ -10,7 +10,7 @@ import (
 	rt "github.com/arnodel/golua/runtime"
 )
 
-func format(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func format(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ var errNotEnoughValues = rt.NewErrorS("not enough values for format string")
 // It temporarily requires all the memory needed to store the formatted string,
 // but releases it before returning so the caller should require memory first
 // thing after the call.
-func Format(t *rt.Thread, format string, values []rt.Value) (string, *rt.Error) {
+func Format(t *rt.Thread, format string, values []rt.Value) (string, error) {
 	var tmpMem uint64
 	defer t.ReleaseMem(tmpMem)
 	// Temporarily require memory for building the argument list

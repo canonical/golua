@@ -49,7 +49,7 @@ func NewGoValue(r *rt.Runtime, x interface{}) rt.Value {
 	return rt.UserDataValue(rt.NewUserData(x, getMeta(r)))
 }
 
-func goValueToString(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func goValueToString(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func goValueToString(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(fmt.Sprintf("%#v", u.Value()))), nil
 }
 
-func goValueIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func goValueIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func goValueIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, val), nil
 }
 
-func goValueSetIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func goValueSetIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(3); err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func goValueSetIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.Next(), nil
 }
 
-func goValueCall(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func goValueCall(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func goValueCall(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext(t.Runtime, res...), nil
 }
 
-func goimport(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func goimport(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if pluginsRoot == "" {
 		return nil, rt.NewError(rt.StringValue("cannot import go packages: plugins root not set"))
 	}

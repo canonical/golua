@@ -116,7 +116,7 @@ func getConfig(pkg *rt.Table) *config {
 	return conf
 }
 
-func require(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func require(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func require(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return nil, err
 }
 
-func searchpath(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func searchpath(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		name, path string
 		sep        = "."
@@ -224,7 +224,7 @@ func searchPath(name, path, dot string, conf *config) (string, []string) {
 	return "", templates
 }
 
-func searchPreload(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func searchPreload(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func searchPreload(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, loader), nil
 }
 
-func searchLua(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func searchLua(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ var (
 	searchPreloadGoFunc = rt.NewGoFunction(searchPreload, "searchpreload", 1, false)
 )
 
-func loadLua(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func loadLua(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}

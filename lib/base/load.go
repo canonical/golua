@@ -8,7 +8,7 @@ import (
 
 const maxChunkNameLen = 59
 
-func load(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func load(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}

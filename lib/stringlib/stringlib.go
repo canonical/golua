@@ -74,7 +74,7 @@ func minpos(i, j int) int {
 	return j
 }
 
-func bytef(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func bytef(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func bytef(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	vals := c.Etc()
 	buf := make([]byte, len(vals))
 	for i, v := range vals {
@@ -125,7 +125,7 @@ func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(string(buf))), nil
 }
 
-func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.IntValue(int64(len(s)))), nil
 }
 
-func lower(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func lower(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func lower(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(s)), nil
 }
 
-func upper(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func upper(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func upper(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(s)), nil
 }
 
-func rep(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func rep(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func rep(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(builder.String())), nil
 }
 
-func reverse(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func reverse(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func reverse(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.StringValue(string(sb))), nil
 }
 
-func sub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func sub(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}

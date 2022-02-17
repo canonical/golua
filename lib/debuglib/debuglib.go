@@ -35,7 +35,7 @@ func load(r *rt.Runtime) (rt.Value, func()) {
 	return pkgVal, nil
 }
 
-func getinfo(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func getinfo(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func getinfo(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func getupvalue(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func getupvalue(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func getupvalue(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func setupvalue(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func setupvalue(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(3); err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func setupvalue(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func upvaluejoin(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func upvaluejoin(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(4); err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func upvaluejoin(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.Next(), nil
 }
 
-func upvalueid(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func upvalueid(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}
@@ -183,8 +183,8 @@ func upvalueid(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.LightUserDataValue(rt.LightUserData{Data: f.Upvalues[up]})), nil
 }
 
-func setmetatable(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
-	var err *rt.Error
+func setmetatable(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
+	var err error
 	if err = c.CheckNArgs(2); err != nil {
 		return nil, err
 	}
@@ -200,9 +200,9 @@ func setmetatable(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, v), nil
 }
 
-func gethook(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func gethook(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
-		err    *rt.Error
+		err    error
 		thread = t
 	)
 	if c.NArgs() > 0 {
@@ -229,10 +229,10 @@ func getMaskString(flags rt.DebugHookFlags) string {
 	return b.String()
 }
 
-func sethook(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func sethook(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		argOffset int
-		err       *rt.Error
+		err       error
 		thread    = t
 		hook      rt.Value
 		mask      string
@@ -298,7 +298,7 @@ func sethook(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.Next(), nil
 }
 
-func traceback(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func traceback(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		cont            = t.CurrentCont()
 		msgString       = ""
@@ -323,7 +323,7 @@ func traceback(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 			}
 		}
 		if nArgs > msgIndex+1 {
-			var err *rt.Error
+			var err error
 			level, err = c.IntArg(msgIndex + 1)
 			if err != nil {
 				return nil, err

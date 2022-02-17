@@ -33,12 +33,12 @@ func load(r *rt.Runtime) (rt.Value, func()) {
 	return rt.TableValue(pkg), nil
 }
 
-func context(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func context(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	ctx := newContextValue(t.Runtime, t.RuntimeContext())
 	return c.PushingNext1(t.Runtime, ctx), nil
 }
 
-func callcontext(t *rt.Thread, c *rt.GoCont) (next rt.Cont, retErr *rt.Error) {
+func callcontext(t *rt.Thread, c *rt.GoCont) (next rt.Cont, retErr error) {
 	quotas, err := c.TableArg(0)
 	if err != nil {
 		return nil, err
@@ -54,14 +54,14 @@ func callcontext(t *rt.Thread, c *rt.GoCont) (next rt.Cont, retErr *rt.Error) {
 		flags       rt.ComplianceFlags
 	)
 	if !limitsV.IsNil() {
-		var err *rt.Error
+		var err error
 		hardLimits, err = getResources(t, limitsV)
 		if err != nil {
 			return nil, err
 		}
 	}
 	if !softLimitsV.IsNil() {
-		var err *rt.Error
+		var err error
 		softLimits, err = getResources(t, softLimitsV)
 		if err != nil {
 			return nil, err
@@ -87,7 +87,7 @@ func callcontext(t *rt.Thread, c *rt.GoCont) (next rt.Cont, retErr *rt.Error) {
 		HardLimits:    hardLimits,
 		SoftLimits:    softLimits,
 		RequiredFlags: flags,
-	}, func() *rt.Error {
+	}, func() error {
 		return rt.Call(t, f, fArgs, res)
 	})
 	t.Push1(next, newContextValue(t.Runtime, ctx))
@@ -95,12 +95,12 @@ func callcontext(t *rt.Thread, c *rt.GoCont) (next rt.Cont, retErr *rt.Error) {
 	case rt.StatusDone:
 		t.Push(next, res.Etc()...)
 	case rt.StatusError:
-		t.Push1(next, err.Value())
+		t.Push1(next, rt.ErrorValue(err))
 	}
 	return next, nil
 }
 
-func getResources(t *rt.Thread, resources rt.Value) (res rt.RuntimeResources, err *rt.Error) {
+func getResources(t *rt.Thread, resources rt.Value) (res rt.RuntimeResources, err error) {
 	res.Cpu, err = getResVal(t, resources, cpuString)
 	if err != nil {
 		return
@@ -116,7 +116,7 @@ func getResources(t *rt.Thread, resources rt.Value) (res rt.RuntimeResources, er
 	return
 }
 
-func getResVal(t *rt.Thread, resources rt.Value, key rt.Value) (uint64, *rt.Error) {
+func getResVal(t *rt.Thread, resources rt.Value, key rt.Value) (uint64, error) {
 	val, err := rt.Index(t, resources, key)
 	if err != nil {
 		return 0, err
@@ -124,7 +124,7 @@ func getResVal(t *rt.Thread, resources rt.Value, key rt.Value) (uint64, *rt.Erro
 	return validateResVal(key, val)
 }
 
-func validateResVal(key rt.Value, val rt.Value) (uint64, *rt.Error) {
+func validateResVal(key rt.Value, val rt.Value) (uint64, error) {
 	if val.IsNil() {
 		return 0, nil
 	}
@@ -140,7 +140,7 @@ func validateResVal(key rt.Value, val rt.Value) (uint64, *rt.Error) {
 	return uint64(n), nil
 }
 
-func getTimeVal(t *rt.Thread, resources rt.Value) (uint64, *rt.Error) {
+func getTimeVal(t *rt.Thread, resources rt.Value) (uint64, error) {
 	val, err := rt.Index(t, resources, secondsString)
 	if err != nil {
 		return 0, err
@@ -155,7 +155,7 @@ func getTimeVal(t *rt.Thread, resources rt.Value) (uint64, *rt.Error) {
 	return validateTimeVal(val, 1, millisName)
 }
 
-func validateTimeVal(val rt.Value, factor float64, name string) (uint64, *rt.Error) {
+func validateTimeVal(val rt.Value, factor float64, name string) (uint64, error) {
 	if val.IsNil() {
 		return 0, nil
 	}

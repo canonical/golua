@@ -65,7 +65,7 @@ func (m *runtimeContextManager) RequiredFlags() ComplianceFlags {
 	return m.requiredFlags
 }
 
-func (m *runtimeContextManager) CheckRequiredFlags(flags ComplianceFlags) *Error {
+func (m *runtimeContextManager) CheckRequiredFlags(flags ComplianceFlags) error {
 	missingFlags := m.requiredFlags &^ flags
 	if missingFlags != 0 {
 		return NewErrorF("missing flags: %s", strings.Join(missingFlags.Names(), " "))

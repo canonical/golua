@@ -2,7 +2,7 @@ package base
 
 import rt "github.com/arnodel/golua/runtime"
 
-func print(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func print(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	err := Print(t, c.Etc())
 	if err != nil {
 		return nil, err
@@ -10,7 +10,7 @@ func print(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.Next(), nil
 }
 
-func Print(t *rt.Thread, args []rt.Value) *rt.Error {
+func Print(t *rt.Thread, args []rt.Value) error {
 	tostring := t.GlobalEnv().Get(rt.StringValue("tostring"))
 	for i, v := range args {
 		if i > 0 {

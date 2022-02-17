@@ -4,7 +4,7 @@ import (
 	rt "github.com/arnodel/golua/runtime"
 )
 
-func rawset(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func rawset(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(3); err != nil {
 		return nil, err
 	}

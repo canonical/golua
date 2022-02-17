@@ -10,7 +10,7 @@ import (
 	rt "github.com/arnodel/golua/runtime"
 )
 
-func find(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func find(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		s, ptn string
 		init   int64 = 1
@@ -69,7 +69,7 @@ func find(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return next, nil
 }
 
-func match(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func match(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		s, ptn string
 		init   int64 = 1
@@ -132,7 +132,7 @@ func captureValue(r *rt.Runtime, c pattern.Capture, s string) rt.Value {
 	return rt.StringValue(s[c.Start():c.End()])
 }
 
-func gmatch(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func gmatch(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		s, ptn string
 		err          = c.CheckNArgs(2)
@@ -159,7 +159,7 @@ func gmatch(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 		si = 0
 	}
 	allowEmpty := true
-	var iterator = func(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+	var iterator = func(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		next := c.Next()
 		var (
 			captures []pattern.Capture
@@ -193,7 +193,7 @@ func gmatch(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext(t.Runtime, rt.FunctionValue(iterGof)), nil
 }
 
-func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	var (
 		s, ptn string
 		n      int64 = -1
@@ -223,10 +223,10 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	// substitution string.  It returns the substituted string, true if a
 	// substitution was actually made, and a non-nil error if something went
 	// wrong.
-	var replF func([]pattern.Capture) (string, bool, *rt.Error)
+	var replF func([]pattern.Capture) (string, bool, error)
 
 	if replString, ok := repl.TryString(); ok {
-		replF = func(captures []pattern.Capture) (string, bool, *rt.Error) {
+		replF = func(captures []pattern.Capture) (string, bool, error) {
 			cStrings := [10]string{}
 			maxIndex := len(captures) - 1
 			for i, c := range captures {
@@ -242,7 +242,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 				cStrings[1] = cStrings[0]
 				maxIndex = 1
 			}
-			var err *rt.Error
+			var err error
 			t.RequireCPU(uint64(len(replString)))
 			t.RequireBytes(len(replString))
 			return gsubPtn.ReplaceAllStringFunc(replString, func(x string) string {
@@ -271,7 +271,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 			}), false, err
 		}
 	} else if replTable, ok := repl.TryTable(); ok {
-		replF = func(captures []pattern.Capture) (string, bool, *rt.Error) {
+		replF = func(captures []pattern.Capture) (string, bool, error) {
 			gc := captures[0]
 			i := 0
 			if len(captures) >= 2 {
@@ -285,7 +285,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 			return subToString(t.Runtime, s[gc.Start():gc.End()], val)
 		}
 	} else if replC, ok := repl.TryCallable(); ok {
-		replF = func(captures []pattern.Capture) (string, bool, *rt.Error) {
+		replF = func(captures []pattern.Capture) (string, bool, error) {
 			term := rt.NewTerminationWith(c, 1, false)
 			cont := replC.Continuation(t, term)
 			gc := captures[0]
@@ -367,7 +367,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 
 var gsubPtn = regexp.MustCompile("%.")
 
-func subToString(r *rt.Runtime, key string, val rt.Value) (string, bool, *rt.Error) {
+func subToString(r *rt.Runtime, key string, val rt.Value) (string, bool, error) {
 	if !rt.Truth(val) {
 		return key, true, nil
 	}

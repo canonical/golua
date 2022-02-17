@@ -34,7 +34,7 @@ func load(r *rt.Runtime) (rt.Value, func()) {
 	return rt.TableValue(pkg), nil
 }
 
-func concat(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func concat(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -113,12 +113,12 @@ func concat(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return nil, err
 }
 
-func errInvalidConcatValue(v rt.Value, i int64) *rt.Error {
+func errInvalidConcatValue(v rt.Value, i int64) error {
 	s, _ := v.ToString()
 	return rt.NewErrorF("invalid value (%s) at index %d in table for 'concat'", s, i)
 }
 
-func insert(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func insert(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(2); err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func insert(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.Next(), nil
 }
 
-func move(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func move(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.CheckNArgs(4); err != nil {
 		return nil, err
 	}
@@ -254,7 +254,7 @@ func move(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, dstVal), nil
 }
 
-func pack(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func pack(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	tbl := rt.NewTable()
 	// We can use t.SetTable() because tbl has no metatable
 	for i, v := range c.Etc() {
@@ -265,7 +265,7 @@ func pack(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
 	return c.PushingNext1(t.Runtime, rt.TableValue(tbl)), nil
 }
 
-func remove(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func remove(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -337,7 +337,15 @@ func (s *tableSorter) Len() int {
 
 const maxSortSize = 1 << 40
 
-func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr *rt.Error) {
+type sortError struct {
+	err error
+}
+
+func throwSortError(err error) {
+	panic(sortError{err: err})
+}
+
+func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}
@@ -349,14 +357,14 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr *rt.Error) {
 	get := func(i int) rt.Value {
 		x, err := rt.Index(t, tblVal, rt.IntValue(int64(i+1)))
 		if err != nil {
-			panic(err)
+			throwSortError(err)
 		}
 		return x
 	}
 	set := func(i int, x rt.Value) {
 		err := rt.SetIndex(t, tblVal, rt.IntValue(int64(i+1)), x)
 		if err != nil {
-			panic(err)
+			throwSortError(err)
 		}
 	}
 	swap := func(i, j int) {
@@ -385,7 +393,7 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr *rt.Error) {
 			term.Reset()
 			err := rt.Call(t, comp, []rt.Value{get(i), get(j)}, term)
 			if err != nil {
-				panic(err)
+				throwSortError(err)
 			}
 			return rt.Truth(term.Get(0))
 		}
@@ -393,7 +401,7 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr *rt.Error) {
 		less = func(i, j int) bool {
 			res, err := rt.Lt(t, get(i), get(j))
 			if err != nil {
-				panic(err)
+				throwSortError(err)
 			}
 			return res
 		}
@@ -401,8 +409,8 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr *rt.Error) {
 	defer func() {
 		if r := recover(); r != nil {
 			next = nil
-			if rtErr, ok := r.(*rt.Error); ok {
-				resErr = rtErr
+			if sortErr, ok := r.(sortError); ok {
+				resErr = sortErr.err
 				return
 			}
 			panic(r)
@@ -419,7 +427,7 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr *rt.Error) {
 // specify what this number should be.
 const maxUnpackSize = 256
 
-func unpack(t *rt.Thread, c *rt.GoCont) (rt.Cont, *rt.Error) {
+func unpack(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err := c.Check1Arg(); err != nil {
 		return nil, err
 	}

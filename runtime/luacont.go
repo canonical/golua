@@ -103,7 +103,7 @@ func (c *LuaCont) Parent() Cont {
 }
 
 // RunInThread implements Cont.RunInThread.
-func (c *LuaCont) RunInThread(t *Thread) (Cont, *Error) {
+func (c *LuaCont) RunInThread(t *Thread) (Cont, error) {
 	pc := c.pc
 	consts := c.consts
 	lines := c.lines
@@ -131,7 +131,7 @@ RunLoop:
 			x := getReg(regs, cells, opcode.GetB())
 			y := getReg(regs, cells, opcode.GetC())
 			var res Value
-			var err *Error
+			var err error
 			var ok bool
 			switch opcode.GetX() {
 
@@ -276,7 +276,7 @@ RunLoop:
 			dst := opcode.GetA()
 			var res Value
 			var ok bool
-			var err *Error
+			var err error
 			if opcode.HasType4a() {
 				val := getReg(regs, cells, opcode.GetB())
 				switch opcode.GetUnOp() {
