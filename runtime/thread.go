@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"errors"
 	"sync"
 	"unsafe"
 )
@@ -171,9 +172,9 @@ func (t *Thread) Resume(caller *Thread, args []Value) ([]Value, error) {
 		t.mux.Unlock()
 		switch t.status {
 		case ThreadDead:
-			return nil, NewErrorS("cannot resume dead thread")
+			return nil, errors.New("cannot resume dead thread")
 		default:
-			return nil, NewErrorS("cannot resume running thread")
+			return nil, errors.New("cannot resume running thread")
 		}
 	}
 	caller.mux.Lock()
@@ -229,7 +230,7 @@ func (t *Thread) Yield(args []Value) ([]Value, error) {
 	caller := t.caller
 	if caller == nil {
 		t.mux.Unlock()
-		return nil, NewErrorS("cannot yield from main thread")
+		return nil, errors.New("cannot yield from main thread")
 	}
 	caller.mux.Lock()
 	if caller.status != ThreadOK {
@@ -360,7 +361,7 @@ func (t *Thread) cleanupCloseStack(c Cont, h int, err error) error {
 		if Truth(v) {
 			closeErr, ok := Metacall(t, v, "__close", []Value{v, ErrorValue(err)}, NewTerminationWith(c, 0, false))
 			if !ok {
-				return NewErrorS("to be closed value missing a __close metamethod")
+				return errors.New("to be closed value missing a __close metamethod")
 			}
 			if closeErr != nil {
 				err = closeErr

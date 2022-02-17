@@ -2,6 +2,7 @@ package utf8lib
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"unicode/utf8"
 
@@ -44,10 +45,10 @@ func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	for i, r := range runes {
 		n, ok := rt.ToInt(r)
 		if !ok {
-			return nil, rt.NewErrorF("#%d should be an integer", i+1)
+			return nil, fmt.Errorf("#%d should be an integer", i+1)
 		}
 		if n < 0 || n > math.MaxInt32 {
-			return nil, rt.NewErrorF("#%d value out of range", i+1)
+			return nil, fmt.Errorf("#%d value out of range", i+1)
 		}
 		sz := luastrings.UTF8EncodeInt32(cur, int32(n))
 		cur = cur[sz:]
@@ -221,7 +222,7 @@ func offset(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		}
 	} else {
 		if i < len(s) && !utf8.RuneStart(s[i]) {
-			return nil, rt.NewErrorS("initial position is a continuation byte")
+			return nil, errors.New("initial position is a continuation byte")
 		}
 		if nn > 0 {
 			nn--

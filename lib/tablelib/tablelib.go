@@ -1,6 +1,8 @@
 package tablelib
 
 import (
+	"errors"
+	"fmt"
 	"math"
 	"sort"
 	"strings"
@@ -115,7 +117,7 @@ func concat(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 
 func errInvalidConcatValue(v rt.Value, i int64) error {
 	s, _ := v.ToString()
-	return rt.NewErrorF("invalid value (%s) at index %d in table for 'concat'", s, i)
+	return fmt.Errorf("invalid value (%s) at index %d in table for 'concat'", s, i)
 }
 
 func insert(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
@@ -141,7 +143,7 @@ func insert(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			return nil, err
 		}
 		if pos <= 0 || pos > tblLen+1 {
-			return nil, rt.NewErrorS("#2 out of range")
+			return nil, errors.New("#2 out of range")
 		}
 		val = c.Arg(2)
 	} else {
@@ -205,14 +207,14 @@ func move(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if srcStart > srcEnd || srcStart == dstStart && dstVal == srcVal {
 		// Nothing to do apparently!
 	} else if srcStart <= 0 && srcStart+math.MaxInt64 <= srcEnd {
-		return nil, rt.NewErrorS("interval too large")
+		return nil, errors.New("interval too large")
 	} else if dstStart >= srcStart {
 		// Move in descending order to avoid writing at a position
 		// before moving it
 		offset := srcEnd - srcStart // 0 <= offset < math.MaxInt64
 		if dstStart > math.MaxInt64-offset {
 			// Not enough space to move
-			return nil, rt.NewErrorS("destination would wrap around")
+			return nil, errors.New("destination would wrap around")
 		}
 		dstStart += offset
 		for srcEnd >= srcStart {
@@ -297,7 +299,7 @@ func remove(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			return nil, err
 		}
 	case pos <= 0 || pos > tblLen:
-		return nil, rt.NewErrorS("#2 out of range")
+		return nil, errors.New("#2 out of range")
 	default:
 		var newVal rt.Value
 		for pos <= tblLen {
@@ -377,7 +379,7 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr error) {
 		return nil, err
 	}
 	if l >= maxSortSize {
-		return nil, rt.NewErrorS("too big to sort")
+		return nil, errors.New("too big to sort")
 	}
 	if l <= 0 {
 		return c.Next(), nil
@@ -456,7 +458,7 @@ func unpack(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		return nil, err
 	}
 	if i < math.MaxInt64-maxUnpackSize && i+maxUnpackSize <= j {
-		return nil, rt.NewErrorS("too many values to unpack")
+		return nil, errors.New("too many values to unpack")
 	}
 	next := c.Next()
 	for ; i <= j; i++ {

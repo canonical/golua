@@ -1,6 +1,10 @@
 package runtime
 
-import "unsafe"
+import (
+	"errors"
+	"fmt"
+	"unsafe"
+)
 
 // GoCont implements Cont for functions written in Go.
 type GoCont struct {
@@ -94,7 +98,7 @@ func (c *GoCont) RunInThread(t *Thread) (next Cont, err error) {
 	defer func() { t.goFunctionCallDepth-- }()
 
 	if t.goFunctionCallDepth > maxGoFunctionCallDepth {
-		return nil, NewErrorS("stack overflow")
+		return nil, errors.New("stack overflow")
 	}
 	next, err = c.f(t, c)
 	_ = t.triggerReturn(t, c)
@@ -164,7 +168,7 @@ func (c *GoCont) Etc() []Value {
 // one arg.
 func (c *GoCont) Check1Arg() error {
 	if c.nArgs == 0 {
-		return NewErrorS("bad argument #1 (value needed)")
+		return errors.New("bad argument #1 (value needed)")
 	}
 	return nil
 }
@@ -173,7 +177,7 @@ func (c *GoCont) Check1Arg() error {
 // n args.
 func (c *GoCont) CheckNArgs(n int) error {
 	if c.nArgs < n {
-		return NewErrorF("%d arguments needed", n)
+		return fmt.Errorf("%d arguments needed", n)
 	}
 	return nil
 }
@@ -183,7 +187,7 @@ func (c *GoCont) CheckNArgs(n int) error {
 func (c *GoCont) StringArg(n int) (string, error) {
 	s, ok := c.Arg(n).TryString()
 	if !ok {
-		return "", NewErrorF("#%d must be a string", n+1)
+		return "", fmt.Errorf("#%d must be a string", n+1)
 	}
 	return s, nil
 }
@@ -197,7 +201,7 @@ func (c *GoCont) BoolArg(n int) (bool, error) {
 	}
 	b, ok := arg.TryBool()
 	if !ok {
-		return false, NewErrorF("#%d must be a boolean", n+1)
+		return false, fmt.Errorf("#%d must be a boolean", n+1)
 	}
 	return b, nil
 }
@@ -207,7 +211,7 @@ func (c *GoCont) BoolArg(n int) (bool, error) {
 func (c *GoCont) CallableArg(n int) (Callable, error) {
 	f, ok := c.Arg(n).TryCallable()
 	if !ok {
-		return nil, NewErrorF("#%d must be a callable", n+1)
+		return nil, fmt.Errorf("#%d must be a callable", n+1)
 	}
 	return f, nil
 }
@@ -217,7 +221,7 @@ func (c *GoCont) CallableArg(n int) (Callable, error) {
 func (c *GoCont) ClosureArg(n int) (*Closure, error) {
 	f, ok := c.Arg(n).TryClosure()
 	if !ok {
-		return nil, NewErrorF("#%d must be a lua function", n+1)
+		return nil, fmt.Errorf("#%d must be a lua function", n+1)
 	}
 	return f, nil
 }
@@ -227,7 +231,7 @@ func (c *GoCont) ClosureArg(n int) (*Closure, error) {
 func (c *GoCont) ThreadArg(n int) (*Thread, error) {
 	t, ok := c.Arg(n).TryThread()
 	if !ok {
-		return nil, NewErrorF("#%d must be a thread", n+1)
+		return nil, fmt.Errorf("#%d must be a thread", n+1)
 	}
 	return t, nil
 }
@@ -237,7 +241,7 @@ func (c *GoCont) ThreadArg(n int) (*Thread, error) {
 func (c *GoCont) IntArg(n int) (int64, error) {
 	i, ok := ToInt(c.Arg(n))
 	if !ok {
-		return 0, NewErrorF("#%d must be an integer", n+1)
+		return 0, fmt.Errorf("#%d must be an integer", n+1)
 	}
 	return i, nil
 }
@@ -247,7 +251,7 @@ func (c *GoCont) IntArg(n int) (int64, error) {
 func (c *GoCont) FloatArg(n int) (float64, error) {
 	x, ok := ToFloat(c.Arg(n))
 	if !ok {
-		return 0, NewErrorF("#%d must be a number", n+1)
+		return 0, fmt.Errorf("#%d must be a number", n+1)
 	}
 	return x, nil
 }
@@ -257,7 +261,7 @@ func (c *GoCont) FloatArg(n int) (float64, error) {
 func (c *GoCont) TableArg(n int) (*Table, error) {
 	t, ok := c.Arg(n).TryTable()
 	if !ok {
-		return nil, NewErrorF("#%d must be a table", n+1)
+		return nil, fmt.Errorf("#%d must be a table", n+1)
 	}
 	return t, nil
 }
@@ -267,7 +271,7 @@ func (c *GoCont) TableArg(n int) (*Table, error) {
 func (c *GoCont) UserDataArg(n int) (*UserData, error) {
 	t, ok := c.Arg(n).TryUserData()
 	if !ok {
-		return nil, NewErrorF("#%d must be userdata", n+1)
+		return nil, fmt.Errorf("#%d must be userdata", n+1)
 	}
 	return t, nil
 }

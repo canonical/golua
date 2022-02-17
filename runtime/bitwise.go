@@ -1,5 +1,7 @@
 package runtime
 
+import "fmt"
+
 func band(t *Thread, x, y Value) (Value, error) {
 	ix, okx := ToIntNoString(x)
 	iy, oky := ToIntNoString(y)
@@ -105,7 +107,7 @@ func binaryBitwiseError(op string, x, y Value, okx, oky bool) error {
 		wrongVal = x
 	}
 	if wrongVal.Type() == FloatType {
-		return NewErrorF("number has no integer representation")
+		return fmt.Errorf("number has no integer representation")
 	}
-	return NewErrorF("attempt to perform bitwise %s on a %s value", op, wrongVal.CustomTypeName())
+	return fmt.Errorf("attempt to perform bitwise %s on a %s value", op, wrongVal.CustomTypeName())
 }

@@ -85,7 +85,7 @@ func regexArg(c *rt.GoCont, n int) (*regexp.Regexp, error) {
 	if ok {
 		return re, nil
 	}
-	return nil, rt.NewErrorF("#%d must be a regex", n+1)
+	return nil, fmt.Errorf("#%d must be a regex", n+1)
 }
 
 // This implements the 'find' method of a regexp.

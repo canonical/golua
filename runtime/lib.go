@@ -55,11 +55,11 @@ func Index(t *Thread, coll Value, k Value) (Value, error) {
 			return res.Get(0), nil
 		}
 	}
-	return NilValue, NewErrorF("'__index' chain too long; possible loop")
+	return NilValue, fmt.Errorf("'__index' chain too long; possible loop")
 }
 
 func indexError(coll Value) error {
-	return NewErrorF("attempt to index a %s value", coll.CustomTypeName())
+	return fmt.Errorf("attempt to index a %s value", coll.CustomTypeName())
 }
 
 // SetIndex sets the item in a collection for the given key, using the
@@ -67,7 +67,7 @@ func indexError(coll Value) error {
 // doesn't return an error.
 func SetIndex(t *Thread, coll Value, idx Value, val Value) error {
 	if idx.IsNil() {
-		return NewErrorS("index is nil")
+		return errors.New("index is nil")
 	}
 	for i := 0; i < maxIndexChainLength; i++ {
 		t.RequireCPU(1)
@@ -92,7 +92,7 @@ func SetIndex(t *Thread, coll Value, idx Value, val Value) error {
 			return Call(t, metaNewIndex, []Value{coll, idx, val}, NewTermination(t.CurrentCont(), nil, nil))
 		}
 	}
-	return NewErrorF("'__newindex' chain too long; possible loop")
+	return fmt.Errorf("'__newindex' chain too long; possible loop")
 }
 
 // Truth returns true if v is neither nil nor a false boolean.
@@ -123,7 +123,7 @@ func Continue(t *Thread, f Value, next Cont) (Cont, error) {
 	}
 	cont, err, ok := metacont(t, f, "__call", next)
 	if !ok {
-		return nil, NewErrorF("attempt to call a %s value", f.CustomTypeName())
+		return nil, fmt.Errorf("attempt to call a %s value", f.CustomTypeName())
 	}
 	if cont != nil {
 		t.Push1(cont, f)
@@ -135,7 +135,7 @@ func Continue(t *Thread, f Value, next Cont) (Cont, error) {
 // the metamethod '__call' if f is not callable.
 func Call(t *Thread, f Value, args []Value, next Cont) error {
 	if f.IsNil() {
-		return NewErrorS("attempt to call a nil value")
+		return errors.New("attempt to call a nil value")
 	}
 	callable, ok := f.TryCallable()
 	if ok {
@@ -145,7 +145,7 @@ func Call(t *Thread, f Value, args []Value, next Cont) error {
 	if ok {
 		return err
 	}
-	return NewErrorF("attempt to call a %s value", f.CustomTypeName())
+	return fmt.Errorf("attempt to call a %s value", f.CustomTypeName())
 }
 
 // Call1 is a convenience method that calls f with arguments args and returns
@@ -183,9 +183,9 @@ func concatError(x, y Value, okx, oky bool) error {
 	case okx:
 		wrongVal = y
 	default:
-		return NewErrorF("attempt to concatenate a %s value with a %s value", x.CustomTypeName(), y.CustomTypeName())
+		return fmt.Errorf("attempt to concatenate a %s value with a %s value", x.CustomTypeName(), y.CustomTypeName())
 	}
-	return NewErrorF("attempt to concatenate a %s value", wrongVal.CustomTypeName())
+	return fmt.Errorf("attempt to concatenate a %s value", wrongVal.CustomTypeName())
 }
 
 // IntLen returns the length of v as an int64, possibly calling the '__len'
@@ -202,7 +202,7 @@ func IntLen(t *Thread, v Value) (int64, error) {
 		}
 		l, ok := ToInt(res.Get(0))
 		if !ok {
-			err = NewErrorS("len should return an integer")
+			err = errors.New("len should return an integer")
 		}
 		return l, err
 	}
@@ -232,7 +232,7 @@ func Len(t *Thread, v Value) (Value, error) {
 }
 
 func lenError(x Value) error {
-	return NewErrorF("attempt to get length of a %s value", x.CustomTypeName())
+	return fmt.Errorf("attempt to get length of a %s value", x.CustomTypeName())
 }
 
 // SetEnv sets the item in the table t for a string key.  Useful when writing

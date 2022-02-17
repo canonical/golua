@@ -1,6 +1,7 @@
 package debuglib
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/arnodel/golua/lib/packagelib"
@@ -53,7 +54,7 @@ func getinfo(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		fIdx = 1
 	}
 	if c.NArgs() < 1+fIdx {
-		return nil, rt.NewErrorS("missing argument: f")
+		return nil, errors.New("missing argument: f")
 	}
 	switch arg := c.Arg(fIdx); arg.Type() {
 	case rt.IntType:
@@ -65,10 +66,10 @@ func getinfo(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		var tp rt.NumberType
 		idx, tp = rt.FloatToInt(arg.AsFloat())
 		if tp != rt.IsInt {
-			return nil, rt.NewErrorS("f should be an integer or function")
+			return nil, errors.New("f should be an integer or function")
 		}
 	default:
-		return nil, rt.NewErrorS("f should be an integer or function")
+		return nil, errors.New("f should be an integer or function")
 	}
 	if cont == nil {
 		cont = thread.CurrentCont()
@@ -158,7 +159,7 @@ func upvaluejoin(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	up1 := int(upv1) - 1
 	up2 := int(upv2) - 1
 	if up1 < 0 || up1 >= int(f1.Code.UpvalueCount) || up2 < 0 || up2 >= int(f2.Code.UpvalueCount) {
-		return nil, rt.NewErrorS("Invalid upvalue index")
+		return nil, errors.New("Invalid upvalue index")
 	}
 	f1.Upvalues[up1] = f2.Upvalues[up2]
 	return c.Next(), nil

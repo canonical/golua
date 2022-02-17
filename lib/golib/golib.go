@@ -119,7 +119,7 @@ func goimport(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	forceBuild := c.NArgs() >= 2 && rt.Truth(c.Arg(1))
 	exports, loadErr := goimports.LoadGoPackage(string(path), pluginsRoot, forceBuild)
 	if loadErr != nil {
-		return nil, rt.NewErrorF("cannot import go package %s: %s", path, loadErr)
+		return nil, fmt.Errorf("cannot import go package %s: %s", path, loadErr)
 	}
 	return c.PushingNext1(t.Runtime, NewGoValue(t.Runtime, exports)), nil
 }

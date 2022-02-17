@@ -3,6 +3,7 @@ package mathlib
 import (
 	crypto "crypto/rand"
 	"encoding/binary"
+	"errors"
 	"math"
 	"math/rand"
 
@@ -68,7 +69,7 @@ func abs(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	case rt.IsFloat:
 		t.Push1(next, rt.FloatValue(math.Abs(f)))
 	default:
-		return nil, rt.NewErrorS("#1 must be a number")
+		return nil, errors.New("#1 must be a number")
 	}
 	return next, nil
 }
@@ -134,7 +135,7 @@ func ceil(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			t.Push1(next, rt.FloatValue(f))
 		}
 	default:
-		return nil, rt.NewErrorS("#1 must be a number")
+		return nil, errors.New("#1 must be a number")
 	}
 	return next, nil
 }
@@ -193,7 +194,7 @@ func floor(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			t.Push1(next, rt.FloatValue(f))
 		}
 	default:
-		return nil, rt.NewErrorS("#1 must be a number")
+		return nil, errors.New("#1 must be a number")
 	}
 	return next, nil
 }
@@ -206,7 +207,7 @@ func fmod(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	y, _ := rt.ToNumberValue(c.Arg(1))
 	res, ok, err := rt.Mod(x, y)
 	if !ok {
-		err = rt.NewErrorS("expected numeric arguments")
+		err = errors.New("expected numeric arguments")
 	}
 	if err != nil {
 		return nil, err
@@ -281,7 +282,7 @@ func modf(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 
 	x, ok := arg.TryFloat()
 	if !ok {
-		return nil, rt.NewErrorS("#1 must be numeric")
+		return nil, errors.New("#1 must be numeric")
 	}
 	var i, f float64
 	if math.IsInf(x, 0) {
@@ -332,7 +333,7 @@ func random(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		return nil, err
 	}
 	if m > n {
-		return nil, rt.NewErrorS("#2 must be >= #1")
+		return nil, errors.New("#2 must be >= #1")
 	}
 	var r int64
 	if m <= 0 && m+math.MaxInt64 < n {
@@ -361,7 +362,7 @@ func randomseed(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		// We need something as random as possible to make a seed.
 		readErr := binary.Read(crypto.Reader, binary.LittleEndian, &seed)
 		if readErr != nil {
-			return nil, rt.NewErrorS("unable to get random seed")
+			return nil, errors.New("unable to get random seed")
 		}
 	case 1:
 		seed, err = c.IntArg(0)

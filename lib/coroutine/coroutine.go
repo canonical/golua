@@ -1,6 +1,8 @@
 package coroutine
 
 import (
+	"fmt"
+
 	"github.com/arnodel/golua/lib/packagelib"
 	rt "github.com/arnodel/golua/runtime"
 )
@@ -40,7 +42,7 @@ func close(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	ok, err := co.Close(t)
 	if !ok {
-		return nil, rt.NewErrorF("cannot close %s thread", statusString(t, co))
+		return nil, fmt.Errorf("cannot close %s thread", statusString(t, co))
 	}
 	next := c.Next()
 	t.Push1(next, rt.BoolValue(err == nil))

@@ -1,6 +1,8 @@
 package runtime
 
 import (
+	"errors"
+	"fmt"
 	"math"
 )
 
@@ -128,7 +130,7 @@ func Idiv(x Value, y Value) (Value, bool, error) {
 		case int64:
 			ny := y.AsInt()
 			if ny == 0 {
-				return NilValue, true, NewErrorS("attempt to divide by zero")
+				return NilValue, true, errors.New("attempt to divide by zero")
 			}
 			return IntValue(floordivInt(x.AsInt(), ny)), true, nil
 		case float64:
@@ -172,7 +174,7 @@ func Mod(x Value, y Value) (Value, bool, error) {
 		case int64:
 			ny := y.AsInt()
 			if ny == 0 {
-				return NilValue, true, NewErrorS("attempt to perform 'n%0'")
+				return NilValue, true, errors.New("attempt to perform 'n%0'")
 			}
 			return IntValue(modInt(x.AsInt(), ny)), true, nil
 		case float64:
@@ -234,9 +236,9 @@ func BinaryArithmeticError(op string, x, y Value) error {
 	case numberType(x) != NaN:
 		wrongVal = y
 	default:
-		return NewErrorF("attempt to %s a '%s' with a '%s'", op, x.CustomTypeName(), y.CustomTypeName())
+		return fmt.Errorf("attempt to %s a '%s' with a '%s'", op, x.CustomTypeName(), y.CustomTypeName())
 	}
-	return NewErrorF("attempt to perform arithmetic on a %s value", wrongVal.CustomTypeName())
+	return fmt.Errorf("attempt to perform arithmetic on a %s value", wrongVal.CustomTypeName())
 }
 
 func unaryArithFallback(t *Thread, op string, x Value) (Value, error) {
@@ -250,5 +252,5 @@ func unaryArithFallback(t *Thread, op string, x Value) (Value, error) {
 // UnaryArithmeticError returns an error describing the problem with trying to
 // perform the unary operation op(x).
 func UnaryArithmeticError(op string, x Value) error {
-	return NewErrorF("attempt to %s a '%s'", op, x.CustomTypeName())
+	return fmt.Errorf("attempt to %s a '%s'", op, x.CustomTypeName())
 }

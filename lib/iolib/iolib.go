@@ -1,6 +1,7 @@
 package iolib
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -195,7 +196,7 @@ func fileflush(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 }
 
 func errFileOrFilename() error {
-	return rt.NewErrorS("#1 must be a file or a filename")
+	return errors.New("#1 must be a file or a filename")
 }
 
 func input(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
@@ -388,7 +389,7 @@ func filewrite(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 func write(r *rt.Runtime, vf rt.Value, c *rt.GoCont) (rt.Cont, error) {
 	f, ok := ValueToFile(vf)
 	if !ok {
-		return nil, rt.NewErrorS("#1 must be a file")
+		return nil, errors.New("#1 must be a file")
 	}
 	if f.IsClosed() {
 		return nil, errFileAlreadyClosed
@@ -400,7 +401,7 @@ func write(r *rt.Runtime, vf rt.Value, c *rt.GoCont) (rt.Cont, error) {
 		case rt.IntType:
 		case rt.FloatType:
 		default:
-			return nil, rt.NewErrorS("argument must be a string or a number")
+			return nil, errors.New("argument must be a string or a number")
 		}
 		s, _ := val.ToString()
 		if err = f.WriteString(s); err != nil {
@@ -440,7 +441,7 @@ func fileseek(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		case "end":
 			whence = io.SeekEnd
 		default:
-			return nil, rt.NewErrorS(`#1 must be "cur", "set" or "end"`)
+			return nil, errors.New(`#1 must be "cur", "set" or "end"`)
 		}
 	}
 	if nargs >= 3 {

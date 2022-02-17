@@ -26,17 +26,6 @@ func newHandledError(message Value) *Error {
 	return &Error{message: message, handled: true}
 }
 
-// NewErrorS returns a new error with a string message and no context.
-func NewErrorS(msg string) *Error {
-	return NewError(StringValue(msg))
-}
-
-// NewErrorF returns a new error with a string message (obtained by calling
-// fmt.Sprintf on the arguments) and no context.
-func NewErrorF(msg string, args ...interface{}) *Error {
-	return NewErrorS(fmt.Sprintf(msg, args...))
-}
-
 // AsError check if err can be converted to an *Error and returns that if
 // successful.
 func AsError(err error) (rtErr *Error, ok bool) {
@@ -53,7 +42,7 @@ func ToError(err error) *Error {
 	if ok {
 		return rtErr
 	}
-	return NewErrorS(err.Error())
+	return NewError(StringValue(err.Error()))
 }
 
 // ErrorValue extracts a Value from err.  If err is an *Error then it returns

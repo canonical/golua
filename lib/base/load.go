@@ -2,6 +2,7 @@ package base
 
 import (
 	"bytes"
+	"errors"
 
 	rt "github.com/arnodel/golua/runtime"
 )
@@ -81,7 +82,7 @@ func load(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			}
 			chunk = buf.Bytes()
 		default:
-			return nil, rt.NewErrorS("#1 must be a string or function")
+			return nil, errors.New("#1 must be a string or function")
 		}
 	}
 	// The chunk is no longer used once we leave this function.

@@ -65,7 +65,7 @@ func ToString(t *rt.Thread, v rt.Value) (string, error) {
 	if ok {
 		s, ok := next.Get(0).ToString()
 		if !ok {
-			return "", rt.NewErrorS("'__tostring' must return a string")
+			return "", errors.New("'__tostring' must return a string")
 		}
 		return s, nil
 	}

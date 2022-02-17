@@ -1,6 +1,10 @@
 package base
 
-import rt "github.com/arnodel/golua/runtime"
+import (
+	"errors"
+
+	rt "github.com/arnodel/golua/runtime"
+)
 
 func print(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	err := Print(t, c.Etc())
@@ -23,7 +27,7 @@ func Print(t *rt.Thread, args []rt.Value) error {
 		if s, ok := vs.TryString(); ok {
 			t.Stdout.Write([]byte(s))
 		} else {
-			return rt.NewErrorS("tostring must return a string")
+			return errors.New("tostring must return a string")
 		}
 	}
 	t.Stdout.Write([]byte{'\n'})

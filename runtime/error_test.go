@@ -21,8 +21,8 @@ func TestAsError(t *testing.T) {
 		},
 		{
 			name:      "*Error",
-			arg:       NewErrorS("hello"),
-			wantRtErr: NewErrorS("hello"),
+			arg:       NewError(StringValue("hello")),
+			wantRtErr: NewError(StringValue("hello")),
 			wantOk:    true,
 		},
 		{
@@ -63,13 +63,13 @@ func TestToError(t *testing.T) {
 		},
 		{
 			name: "non nil *Error",
-			arg:  NewErrorS("hello"),
-			want: NewErrorS("hello"),
+			arg:  errors.New("hello"),
+			want: NewError(StringValue("hello")),
 		},
 		{
 			name: "string error",
 			arg:  errors.New("hi"),
-			want: NewErrorS("hi"),
+			want: NewError(StringValue("hi")),
 		},
 		// TODO: Add test cases.
 	}

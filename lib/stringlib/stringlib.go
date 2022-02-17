@@ -1,6 +1,8 @@
 package stringlib
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/arnodel/golua/lib/packagelib"
@@ -114,10 +116,10 @@ func char(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	for i, v := range vals {
 		x, ok := rt.ToInt(v)
 		if !ok {
-			return nil, rt.NewErrorS("arguments must be integers")
+			return nil, errors.New("arguments must be integers")
 		}
 		if x < 0 || x > 255 {
-			return nil, rt.NewErrorF("#%d out of range", i+1)
+			return nil, fmt.Errorf("#%d out of range", i+1)
 		}
 		buf[i] = byte(x)
 	}
@@ -176,7 +178,7 @@ func rep(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	n := int(ln)
 	if n < 0 {
-		return nil, rt.NewErrorS("#2 out of range")
+		return nil, errors.New("#2 out of range")
 	}
 	var sep []byte
 	if c.NArgs() >= 3 {
@@ -195,7 +197,7 @@ func rep(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if sep == nil {
 		if len(ls)*n/n != len(ls) {
 			// Overflow
-			return nil, rt.NewErrorS("rep causes overflow")
+			return nil, errors.New("rep causes overflow")
 		}
 		t.RequireBytes(n * len(ls))
 		return c.PushingNext1(t.Runtime, rt.StringValue(strings.Repeat(string(ls), n))), nil
@@ -206,7 +208,7 @@ func rep(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	sz2 := (n - 1) * len(sep)
 	sz := sz1 + sz2
 	if sz1/n != len(s) || sz2/(n-1) != len(sep) || sz < 0 {
-		return nil, rt.NewErrorS("rep causes overflow")
+		return nil, errors.New("rep causes overflow")
 	}
 	t.RequireBytes(n*len(s) + (n-1)*len(sep))
 	builder.Grow(sz)

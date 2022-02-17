@@ -1,6 +1,8 @@
 package runtimelib
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/arnodel/golua/lib/packagelib"
@@ -70,12 +72,12 @@ func callcontext(t *rt.Thread, c *rt.GoCont) (next rt.Cont, retErr error) {
 	if !flagsV.IsNil() {
 		flagsStr, ok := flagsV.TryString()
 		if !ok {
-			return nil, rt.NewErrorS("flags must be a string")
+			return nil, errors.New("flags must be a string")
 		}
 		for _, name := range strings.Fields(flagsStr) {
 			flags, ok = flags.AddFlagWithName(name)
 			if !ok {
-				return nil, rt.NewErrorF("unknown flag: %q", name)
+				return nil, fmt.Errorf("unknown flag: %q", name)
 			}
 		}
 	}
@@ -131,11 +133,11 @@ func validateResVal(key rt.Value, val rt.Value) (uint64, error) {
 	n, ok := rt.ToIntNoString(val)
 	if !ok {
 		name, _ := key.ToString()
-		return 0, rt.NewErrorF("%s must be an integer", name)
+		return 0, fmt.Errorf("%s must be an integer", name)
 	}
 	if n <= 0 {
 		name, _ := key.ToString()
-		return 0, rt.NewErrorF("%s must be a positive integer", name)
+		return 0, fmt.Errorf("%s must be a positive integer", name)
 	}
 	return uint64(n), nil
 }
@@ -161,10 +163,10 @@ func validateTimeVal(val rt.Value, factor float64, name string) (uint64, error) 
 	}
 	s, ok := rt.ToFloat(val)
 	if !ok {
-		return 0, rt.NewErrorF("%s must be a numeric value", name)
+		return 0, fmt.Errorf("%s must be a numeric value", name)
 	}
 	if s <= 0 {
-		return 0, rt.NewErrorF("%s must be positive", name)
+		return 0, fmt.Errorf("%s must be positive", name)
 	}
 	return uint64(s * factor), nil
 }

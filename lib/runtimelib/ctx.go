@@ -84,7 +84,7 @@ func contextArg(c *rt.GoCont, n int) (rt.RuntimeContext, error) {
 	if ok {
 		return ctx, nil
 	}
-	return nil, rt.NewErrorF("#%d must be a runtime context", n+1)
+	return nil, fmt.Errorf("#%d must be a runtime context", n+1)
 }
 
 func optContextArg(t *rt.Thread, c *rt.GoCont, n int) (rt.RuntimeContext, error) {
@@ -99,7 +99,7 @@ func resourcesArg(c *rt.GoCont, n int) (rt.RuntimeResources, error) {
 	if ok {
 		return res, nil
 	}
-	return res, rt.NewErrorF("#%d must be a runtime resources", n+1)
+	return res, fmt.Errorf("#%d must be a runtime resources", n+1)
 }
 
 func context__index(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {

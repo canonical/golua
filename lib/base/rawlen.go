@@ -1,6 +1,8 @@
 package base
 
 import (
+	"errors"
+
 	rt "github.com/arnodel/golua/runtime"
 )
 
@@ -17,5 +19,5 @@ func rawlen(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		t.Push1(next, rt.IntValue(x.AsTable().Len()))
 		return next, nil
 	}
-	return nil, rt.NewErrorS("#1 must be a string or table")
+	return nil, errors.New("#1 must be a string or table")
 }

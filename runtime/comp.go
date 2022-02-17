@@ -1,5 +1,7 @@
 package runtime
 
+import "fmt"
+
 // RawEqual returns two values.  The second one is true if raw equality makes
 // sense for x and y.  The first one returns whether x and y are raw equal.
 func RawEqual(x, y Value) (bool, bool) {
@@ -186,5 +188,5 @@ func le(t *Thread, x, y Value) (bool, error) {
 }
 
 func compareError(x, y Value) error {
-	return NewErrorF("attempt to compare a %s value with a %s value", x.CustomTypeName(), y.CustomTypeName())
+	return fmt.Errorf("attempt to compare a %s value with a %s value", x.CustomTypeName(), y.CustomTypeName())
 }

@@ -1,6 +1,7 @@
 package base
 
 import (
+	"errors"
 	"runtime"
 	"runtime/debug"
 
@@ -44,7 +45,7 @@ func collectgarbage(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		runtime.ReadMemStats(&stats)
 		t.Push1(next, rt.FloatValue(float64(stats.Alloc)/1024.0))
 	default:
-		return nil, rt.NewErrorS("invalid option")
+		return nil, errors.New("invalid option")
 	}
 	return next, nil
 }

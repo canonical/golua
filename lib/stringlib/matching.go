@@ -1,6 +1,8 @@
 package stringlib
 
 import (
+	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -303,7 +305,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			return subToString(t.Runtime, s[gc.Start():gc.End()], term.Get(0))
 		}
 	} else {
-		return nil, rt.NewErrorS("#3 must be a string, table or function")
+		return nil, errors.New("#3 must be a string, table or function")
 	}
 	var (
 		si         int             // Index in s where to start finding the next match
@@ -376,5 +378,5 @@ func subToString(r *rt.Runtime, key string, val rt.Value) (string, bool, error) 
 		r.RequireBytes(len(res))
 		return res, false, nil
 	}
-	return "", false, rt.NewErrorF("invalid replacement value (a %s)", val.TypeName())
+	return "", false, fmt.Errorf("invalid replacement value (a %s)", val.TypeName())
 }

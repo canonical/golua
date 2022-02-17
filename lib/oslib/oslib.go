@@ -1,6 +1,7 @@
 package oslib
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -150,14 +151,14 @@ func timef(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		}
 		if val == rt.NilValue {
 			if required {
-				fieldErr = rt.NewErrorF("required field '%s' missing", name)
+				fieldErr = fmt.Errorf("required field '%s' missing", name)
 				return false
 			}
 			return true
 		}
 		iVal, ok := val.TryInt()
 		if !ok {
-			fieldErr = rt.NewErrorF("field '%s' is not an integer", name)
+			fieldErr = fmt.Errorf("field '%s' is not an integer", name)
 			return false
 		}
 		*dest = int(iVal)
