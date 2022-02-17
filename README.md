@@ -2,6 +2,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/arnodel/golua)](https://goreportcard.com/report/github.com/arnodel/golua)
 [![Coverage](https://codecov.io/gh/arnodel/golua/branch/master/graph/badge.svg)](https://codecov.io/gh/arnodel/golua)
 
+Test update to Readme
 # GoLua
 
 Implementation of Lua **5.4** in Go with **no third party dependencies**. The
