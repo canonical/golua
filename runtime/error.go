@@ -31,12 +31,6 @@ func NewErrorS(msg string) *Error {
 	return NewError(StringValue(msg))
 }
 
-// NewErrorE returns a new error with a string message (the error message) and
-// no context.
-func NewErrorE(e error) *Error {
-	return NewErrorS(e.Error())
-}
-
 // NewErrorF returns a new error with a string message (obtained by calling
 // fmt.Sprintf on the arguments) and no context.
 func NewErrorF(msg string, args ...interface{}) *Error {
@@ -59,7 +53,7 @@ func ToError(err error) *Error {
 	if ok {
 		return rtErr
 	}
-	return NewErrorE(err)
+	return NewErrorS(err.Error())
 }
 
 // ErrorValue extracts a Value from err.  If err is an *Error then it returns

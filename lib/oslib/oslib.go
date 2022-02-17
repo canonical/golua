@@ -85,7 +85,7 @@ func date(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		{
 			dateStr, fmtErr := strftime.StrictFormat(format, now)
 			if fmtErr != nil {
-				return nil, rt.NewErrorE(fmtErr)
+				return nil, fmtErr
 			}
 			date = rt.StringValue(dateStr)
 		}

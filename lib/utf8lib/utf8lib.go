@@ -87,7 +87,7 @@ func codes(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 			case 0:
 				return next, nil
 			case 1:
-				return nil, rt.NewErrorE(errInvalidCode)
+				return nil, errInvalidCode
 			}
 			// If n > 1, then it is a successful decode in lax mode.
 		}
@@ -125,17 +125,17 @@ func codepoint(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	next := c.Next()
 	i := luastrings.StringNormPos(s, int(ii))
 	if i < 1 {
-		return nil, rt.NewErrorE(errPosOutOfRange)
+		return nil, errPosOutOfRange
 	}
 	j := luastrings.StringNormPos(s, int(jj))
 	if j > len(s) {
-		return nil, rt.NewErrorE(errPosOutOfRange)
+		return nil, errPosOutOfRange
 	}
 	for k := i - 1; k < j; {
 		t.RequireCPU(1)
 		r, sz := decode(s[k:])
 		if r == utf8.RuneError && sz <= 1 {
-			return nil, rt.NewErrorE(errInvalidCode)
+			return nil, errInvalidCode
 		}
 		t.Push1(next, rt.IntValue(int64(r)))
 		k += sz
@@ -171,7 +171,7 @@ func lenf(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		slen   int64
 	)
 	if i <= 0 || i > len(s)+1 || j > len(s) {
-		return nil, rt.NewErrorE(errPosOutOfRange)
+		return nil, errPosOutOfRange
 	}
 	for k := i - 1; k < j; {
 		t.RequireCPU(1)
@@ -210,7 +210,7 @@ func offset(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	i := luastrings.StringNormPos(ss, int(ii)) - 1
 	s := string(ss)
 	if i < 0 || i > len(s) {
-		return nil, rt.NewErrorE(errPosOutOfRange)
+		return nil, errPosOutOfRange
 	}
 	if nn == 0 {
 		// Special case: locate the starting position of the current

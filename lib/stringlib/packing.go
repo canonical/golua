@@ -93,7 +93,7 @@ func pack(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	res, used, perr := PackValues(string(format), c.Etc(), t.LinearUnused(10))
 	t.LinearRequire(10, used)
 	if perr != nil {
-		return nil, rt.NewErrorE(perr)
+		return nil, perr
 	}
 	return c.PushingNext1(t.Runtime, rt.StringValue(res)), nil
 }
@@ -124,7 +124,7 @@ func unpack(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	vals, m, used, uerr := UnpackString(string(format), string(pack), i, t.LinearUnused(10))
 	t.LinearRequire(10, used)
 	if uerr != nil {
-		return nil, rt.NewErrorE(uerr)
+		return nil, uerr
 	}
 	next := c.Next()
 	t.Push(next, vals...)
@@ -142,7 +142,7 @@ func packsize(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	size, serr := PackSize(string(format))
 	if serr != nil {
-		return nil, rt.NewErrorE(serr)
+		return nil, serr
 	}
 	return c.PushingNext1(t.Runtime, rt.IntValue(int64(size))), nil
 }

@@ -53,7 +53,7 @@ func find(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	default:
 		pat, err := pattern.New(string(ptn))
 		if err != nil {
-			return nil, rt.NewErrorE(err)
+			return nil, err
 		}
 		captures, usedCPU := pat.MatchFromStart(string(s), si, t.UnusedCPU())
 		t.RequireCPU(usedCPU)
@@ -94,7 +94,7 @@ func match(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	next := c.Next()
 	pat, ptnErr := pattern.New(string(ptn))
 	if ptnErr != nil {
-		return nil, rt.NewErrorE(ptnErr)
+		return nil, ptnErr
 	}
 	captures, usedCPU := pat.MatchFromStart(string(s), si, t.UnusedCPU())
 	t.RequireCPU(usedCPU)
@@ -152,7 +152,7 @@ func gmatch(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	pat, ptnErr := pattern.New(string(ptn))
 	if ptnErr != nil {
-		return nil, rt.NewErrorE(ptnErr)
+		return nil, ptnErr
 	}
 	si := luastrings.StringNormPos(s, int(init)) - 1
 	if si < 0 {
@@ -215,7 +215,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	repl = c.Arg(2)
 	pat, ptnErr := pattern.New(string(ptn))
 	if ptnErr != nil {
-		return nil, rt.NewErrorE(ptnErr)
+		return nil, ptnErr
 	}
 
 	// replF will be the function that does the substitution of the match given
@@ -254,7 +254,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 				case '0' <= b && b <= '9':
 					idx := int(b - '0')
 					if idx > maxIndex {
-						err = rt.NewErrorE(pattern.ErrInvalidCaptureIdx(idx))
+						err = pattern.ErrInvalidCaptureIdx(idx)
 						return ""
 					}
 					s := cStrings[b-'0']
@@ -265,7 +265,7 @@ func gsub(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 				case b == '%':
 					return x[1:]
 				default:
-					err = rt.NewErrorE(pattern.ErrInvalidPct)
+					err = pattern.ErrInvalidPct
 				}
 				return x[1:]
 			}), false, err

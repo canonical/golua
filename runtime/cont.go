@@ -65,7 +65,7 @@ func (r *Runtime) PushIoError(c Cont, ioErr error) error {
 	case *os.LinkError:
 		err = tErr.Unwrap()
 	default:
-		return NewErrorE(ioErr)
+		return ioErr
 	}
 	r.Push1(c, NilValue)
 	r.Push1(c, StringValue(ioErr.Error()))

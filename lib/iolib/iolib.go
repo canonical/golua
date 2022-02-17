@@ -211,7 +211,7 @@ func input(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	case rt.StringType:
 		f, ioErr := OpenFile(t.Runtime, arg.AsString(), "r")
 		if ioErr != nil {
-			return nil, rt.NewErrorE(ioErr)
+			return nil, ioErr
 		}
 		fv = newFileUserData(f, ioData.metatable)
 	case rt.UserDataType:
@@ -240,7 +240,7 @@ func output(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	case rt.StringType:
 		f, ioErr := OpenFile(t.Runtime, arg.AsString(), "w")
 		if ioErr != nil {
-			return nil, rt.NewErrorE(ioErr)
+			return nil, ioErr
 		}
 		fv = newFileUserData(f, ioData.metatable)
 	case rt.UserDataType:
@@ -274,12 +274,12 @@ func iolines(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 		var ioErr error
 		f, ioErr = OpenFile(t.Runtime, string(fname), "r")
 		if ioErr != nil {
-			return nil, rt.NewErrorE(ioErr)
+			return nil, ioErr
 		}
 	}
 	readers, fmtErr := getFormatReaders(c.Etc())
 	if fmtErr != nil {
-		return nil, rt.NewErrorE(fmtErr)
+		return nil, fmtErr
 	}
 	return c.PushingNext(t.Runtime, rt.FunctionValue(lines(t.Runtime, f, readers, eofAction))), nil
 }
@@ -294,7 +294,7 @@ func filelines(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	readers, fmtErr := getFormatReaders(c.Etc())
 	if fmtErr != nil {
-		return nil, rt.NewErrorE(fmtErr)
+		return nil, fmtErr
 	}
 
 	return c.PushingNext(t.Runtime, rt.FunctionValue(lines(t.Runtime, f, readers, doNotCloseAtEOF))), nil
@@ -325,7 +325,7 @@ func lines(r *rt.Runtime, f *File, readers []formatReader, flags int) *rt.GoFunc
 				t.Push1(next, rt.NilValue)
 				return next, nil
 			}
-			return nil, rt.NewErrorE(err)
+			return nil, err
 		}
 		return next, nil
 	}
@@ -391,7 +391,7 @@ func write(r *rt.Runtime, vf rt.Value, c *rt.GoCont) (rt.Cont, error) {
 		return nil, rt.NewErrorS("#1 must be a file")
 	}
 	if f.IsClosed() {
-		return nil, rt.NewErrorE(errFileAlreadyClosed)
+		return nil, errFileAlreadyClosed
 	}
 	var err error
 	for _, val := range c.Etc() {
@@ -482,7 +482,7 @@ func filesetvbuf(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	bufErr := f.SetWriteBuffer(mode, int(size))
 	if bufErr != nil {
-		return nil, rt.NewErrorE(bufErr)
+		return nil, bufErr
 	}
 	return c.PushingNext1(t.Runtime, rt.BoolValue(true)), nil
 }
@@ -490,7 +490,7 @@ func filesetvbuf(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 func tmpfile(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	f, err := TempFile(t.Runtime)
 	if err != nil {
-		return nil, rt.NewErrorE(err)
+		return nil, err
 	}
 	fv := newFileUserData(f, getIoData(t.Runtime).metatable)
 	return c.PushingNext(t.Runtime, rt.UserDataValue(fv)), nil

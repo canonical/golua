@@ -374,7 +374,7 @@ func sortf(t *rt.Thread, c *rt.GoCont) (next rt.Cont, resErr error) {
 	}
 	l, err := rt.IntLen(t, tblVal)
 	if err != nil {
-		return nil, rt.NewErrorE(err)
+		return nil, err
 	}
 	if l >= maxSortSize {
 		return nil, rt.NewErrorS("too big to sort")

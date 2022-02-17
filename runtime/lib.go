@@ -73,7 +73,7 @@ func SetIndex(t *Thread, coll Value, idx Value, val Value) error {
 		t.RequireCPU(1)
 		tbl, isTable := coll.TryTable()
 		if isTable && idx.IsNaN() {
-			return NewErrorE(errTableIndexIsNaN)
+			return errTableIndexIsNaN
 		}
 		if isTable && tbl.Reset(idx, val) {
 			return nil

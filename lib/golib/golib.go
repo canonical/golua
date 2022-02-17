@@ -70,7 +70,7 @@ func goValueIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	val, indexErr := goIndex(t, u, c.Arg(1))
 	if indexErr != nil {
-		return nil, rt.NewErrorE(indexErr)
+		return nil, indexErr
 	}
 	return c.PushingNext1(t.Runtime, val), nil
 }
@@ -85,7 +85,7 @@ func goValueSetIndex(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	setIndexErr := goSetIndex(t, u, c.Arg(1), c.Arg(2))
 	if setIndexErr != nil {
-		return nil, rt.NewErrorE(setIndexErr)
+		return nil, setIndexErr
 	}
 	return c.Next(), nil
 }
@@ -100,7 +100,7 @@ func goValueCall(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	res, callErr := goCall(t, u, c.Etc())
 	if callErr != nil {
-		return nil, rt.NewErrorE(callErr)
+		return nil, callErr
 	}
 	return c.PushingNext(t.Runtime, res...), nil
 }

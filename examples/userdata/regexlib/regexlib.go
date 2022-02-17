@@ -63,7 +63,7 @@ func newRegex(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	}
 	re, compErr := regexp.Compile(string(s))
 	if compErr != nil {
-		return nil, rt.NewErrorE(compErr)
+		return nil, compErr
 	}
 	regexMeta := t.Registry(regexMetaKey)
 	return c.PushingNext(t.Runtime, rt.UserDataValue(rt.NewUserData(re, regexMeta.AsTable()))), nil

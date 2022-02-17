@@ -27,7 +27,7 @@ func dump(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	// worry about the rest of this codepath in this case.
 	t.LinearRequire(10, used)
 	if err != nil {
-		return nil, rt.NewErrorE(mErr)
+		return nil, mErr
 	}
 	return c.PushingNext1(t.Runtime, rt.StringValue(w.String())), nil
 }

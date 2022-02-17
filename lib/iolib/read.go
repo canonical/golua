@@ -11,7 +11,7 @@ func ioread(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	next := c.Next()
 	readers, fmtErr := getFormatReaders(c.Etc())
 	if fmtErr != nil {
-		return nil, rt.NewErrorE(fmtErr)
+		return nil, fmtErr
 	}
 	ioErr := read(t.Runtime, getIoData(t.Runtime).defaultInputFile(), readers, next)
 	if ioErr != nil && ioErr != io.EOF {
@@ -31,7 +31,7 @@ func fileread(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	next := c.Next()
 	readers, fmtErr := getFormatReaders(c.Etc())
 	if fmtErr != nil {
-		return nil, rt.NewErrorE(fmtErr)
+		return nil, fmtErr
 	}
 	ioErr := read(t.Runtime, f, readers, next)
 	if ioErr != nil && ioErr != io.EOF {
