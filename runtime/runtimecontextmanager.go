@@ -135,7 +135,7 @@ func (m *runtimeContextManager) PushContext(ctx RuntimeContextDef) {
 	m.trackMem = m.hardLimits.Memory > 0 || m.softLimits.Memory > 0
 	m.status = StatusLive
 	m.messageHandler = ctx.MessageHandler
-	m.fsAccessRule = safeio.MergeFSAccessRules(parent.fsAccessRule, ctx.FSAccessRule)
+	m.fsAccessRule = safeio.ChainFSAccessRules(parent.fsAccessRule, ctx.FSAccessRule)
 	m.parent = &parent
 	if ctx.GCPolicy == IsolateGCPolicy || ctx.HardLimits.Millis > 0 || ctx.HardLimits.Cpu > 0 || ctx.HardLimits.Memory > 0 {
 		m.weakRefPool = luagc.NewDefaultPool()
