@@ -4,9 +4,40 @@ import (
 	"strings"
 )
 
+// FSAccessEffect represents an effect on the filesystem, i.e. a set of
+// FSActions explicitly allowed and a set of FSActions explicitly denied.
+type FSAccessEffect struct {
+	AllowedActions FSAction
+	DeniedActions  FSAction
+}
+
+// MergeWith combines two FSAccessEffect instances and returns a new
+// FSAccessEffect allowing actions allowed by either effect and denying all
+// actions denied by either effect.
+func (e FSAccessEffect) MergeWith(e1 FSAccessEffect) FSAccessEffect {
+	e.AllowedActions |= e1.AllowedActions
+	e.DeniedActions |= e1.DeniedActions
+	return e
+}
+
+// ChainWIth combines two FSAccessEffect instances and returns a new
+// FSAccessEffect allowing only actions allowed in both effects and denying all
+// actions denied by either effect.
+func (e FSAccessEffect) ChainWith(e1 FSAccessEffect) FSAccessEffect {
+	e.AllowedActions &= e1.AllowedActions
+	e.DeniedActions |= e1.DeniedActions
+	return e
+}
+
+// Allows returns true only if all actions are allowed by the effect and none
+// are denied by the effect.
+func (e FSAccessEffect) Allows(actions FSAction) bool {
+	return e.AllowedActions&actions == actions && e.DeniedActions&actions == 0
+}
+
 // FSAccessRule knows how to allow or deny actions on a certain file path.
 type FSAccessRule interface {
-	GetFSAccessEffect(path string, requested FSAction) (allowed FSAction, denied FSAction)
+	GetFSAccessEffect(path string, requested FSAction) FSAccessEffect
 }
 
 // FSAccessRuleset allows grouping rules together.
@@ -16,11 +47,9 @@ type FSAccessRuleset struct {
 
 // GetFSAccessEffect returns Deny if any of its rules returns Deny, otherwise
 // returns Allow if any of its rules returns Allow, otherwise returns None.
-func (s FSAccessRuleset) GetFSAccessEffect(path string, requested FSAction) (allowed FSAction, denied FSAction) {
+func (s FSAccessRuleset) GetFSAccessEffect(path string, requested FSAction) (effect FSAccessEffect) {
 	for _, r := range s.Rules {
-		a, d := r.GetFSAccessEffect(path, requested)
-		allowed |= a
-		denied |= d
+		effect = effect.ChainWith(r.GetFSAccessEffect(path, requested))
 	}
 	return
 }
@@ -31,28 +60,27 @@ type FSAccessRulechain struct {
 	Rules []FSAccessRule
 }
 
-func (r FSAccessRulechain) GetFSAccessEffect(path string, requested FSAction) (allowed FSAction, denied FSAction) {
-	allowed, denied = AllFileActions, AllFileActions
+func (r FSAccessRulechain) GetFSAccessEffect(path string, requested FSAction) (effect FSAccessEffect) {
+	effect.AllowedActions = AllFileActions
 	for _, r := range r.Rules {
-		a, d := r.GetFSAccessEffect(path, requested)
-		allowed &= a
-		denied |= d
+		effect = effect.ChainWith(r.GetFSAccessEffect(path, requested))
 	}
 	return
 }
 
 type PrefixFSAccessRule struct {
-	Prefix         string
-	AllowedActions FSAction
-	DeniedActions  FSAction
+	Prefix string
+	Effect FSAccessEffect
 }
 
-func (r PrefixFSAccessRule) GetFSAccessEffect(path string, actions FSAction) (allowed FSAction, denied FSAction) {
+func (r PrefixFSAccessRule) GetFSAccessEffect(path string, actions FSAction) (effect FSAccessEffect) {
 	if !strings.HasPrefix(path, r.Prefix) {
 		// If the path does start with r.Prefix, there is no effect from this rule.
-		return 0, 0
+		return
 	}
-	return actions & r.AllowedActions, actions & r.DeniedActions
+	effect.AllowedActions = r.Effect.AllowedActions & actions
+	effect.DeniedActions = r.Effect.DeniedActions & actions
+	return
 }
 
 // MergeFSAccessRules returns an FSAccessRule representing all the rules passed
@@ -79,7 +107,7 @@ func MergeFSAccessRules(rules ...FSAccessRule) FSAccessRule {
 	}
 }
 
-// MergeFSAccessRules returns an FSAccessRule chaining all the rules passed in.
+// ChainFSAccessRules returns an FSAccessRule chaining all the rules passed in.
 // It discards nil rules.
 func ChainFSAccessRules(rules ...FSAccessRule) FSAccessRule {
 	var chain []FSAccessRule

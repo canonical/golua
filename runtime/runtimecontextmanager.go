@@ -321,8 +321,8 @@ func (m *runtimeContextManager) CheckFSActions(path string, requested safeio.FSA
 		return true
 	}
 	if m.fsAccessRule != nil {
-		allowed, denied := m.fsAccessRule.GetFSAccessEffect(filepath.Clean(path), requested)
-		return denied == 0 && allowed == requested
+		effect := m.fsAccessRule.GetFSAccessEffect(filepath.Clean(path), requested)
+		return effect.Allows(requested)
 	}
 	return false
 }

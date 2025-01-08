@@ -226,9 +226,11 @@ func getFSAccessRule(val rt.Value) (safeio.FSAccessRule, error) {
 		prefix = filepath.Clean(prefix)
 	}
 	return safeio.PrefixFSAccessRule{
-		Prefix:         prefix,
-		AllowedActions: allowed,
-		DeniedActions:  denied,
+		Prefix: prefix,
+		Effect: safeio.FSAccessEffect{
+			AllowedActions: allowed,
+			DeniedActions:  denied,
+		},
 	}, nil
 }
 
